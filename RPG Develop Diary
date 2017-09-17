@@ -1,0 +1,45 @@
+2017.2.16
+The project has just set up. The first step, I want to build a terrain, spawning a player that can walk around. 
+At the beginning, there was something wrong with the project. Seems that I wrongly chose some package and added them into the project. The terrain can not be edited. After the project was rebuilt with all the standard assets except ORK imported, the problem was solved. The terrain was covered with grass texture and some trees. Here comes the key point. The ORK Tutorial Resources was imported in this moment. Drag the Brown Pants from the prefab folder. Testing a few times, obviously it could not move. I knew a script must be attached to help move. Make sure there are components, including Rigidbody, Character Controller, and your script. I copied codes that defines the moving direction according to the arrow keys. Then the character successfully can move. Putting the main camera to a comfortable position and angle and attaching it to the character, I saved it as a prefab in order to use more conveniently the next time. A walking character is done. I want to make an improvement with the singleton pattern. An empty GameObject carries a script, controlling everything in this scene. In the script, the character can be instantiated from the prefab. This helps separate the terrain/buildings and the characters/items and make easier modification. My next attempt is to build up a interaction system. So put down a Blue Pants from the prefab, and try this using the Trigger method. I set a cube collider in front of the new NPC Blue Pants, the parent of the trigger. A script which detects the collision is attached to the trigger cube. Using function OnTriggerStay, the NPC detects anyone standing in front of him and spins around as response. I refer to API documents and several blogs. It’s critical to distinguish Trigger, Collider and Collision. I finally succeeded when I got the right answer. 
+Later I will combine the scene controller and the trigger to make a conversation between the player and NPC. Or does it need a GUI first? 
+
+2017.2.18
+Today I do some practice on scene mangement. I set up a blank scene in the project. Then add an EmptyObject to it, carrying a script to control the scene. This time I correct a few mistakes in the previous codes. Searching that adding “using UnityEngine.SceneMangement” can help to change scene, I applied it to the collider script, where the player leave the Trigger leading to a scene changing. In the latest scene, I wrote a script attaching to an EmptyObject. When the script is OnStart, it changes to the other scene. I’ve tried to make it happen once. But it told that OnStart executes always when the scene starts. And the class inherit from MonoBeheaviour can not remember any variable. It’s recommended to create a global script which does not inherit from MonoBeheaviour, using static variables to be found in any circumstance. I’d better to learn more about the life of a script and the inbuilt functions. By the way, the GUI system is very confusing. I haven’t had any idea on it. 
+
+2017.2.19
+It’s a fabulous day today. I mostly solve the remaining problems so far. Following the instruction by the advice, I create a new script in the Asset folder. Then I wrote a singleton pattern class, which is not inherited from MonoBeheaviour, using static variables and functions to store and change the global settings. The script need no GameObject to attach to. The information remains when the scene changes. Half done. About the GUI system, luckily, I found a translated tutorial in Bilibili. For every GUI layout, we should create a GameObject named canvas to carry the layout. The UI elements such as buttons, are created in the canvas. Looking at the Button(Script) component of the button, focus on the OnClick() settings. It allows you to select a public function in a curtain GameObject to execute when you click on the button. For example, first I select the GameObject SceneController0 in the scene, and then I choose the function changeScene() in the script attached to this component. That’s all for today’s great improvement. 
+
+2017.2.20
+The process has been much harder. I could only make some adjustments to the character movement and the camera. Previously, the player never rotates when walking in different directions. After a series of experiments, I found it better to separate movement(position) and rotation. That is to say, make rotation a function like animation executing during walking, instead of calculating the vectors to determine the rotation. The latter one leads to several problems. In math, to use Vector.Cross() is a simple way to get the rotation. But in reality, the comparison between vectors is no accurate. For example, you will not get the right answer when you compare an “Ought to be (0,0,0)” vector to Vector.zero, and the same result in the comparison between two “Ought to be equaled” vectors. The other problem is about the camera. When the character rotates, the camera rotates, as a child of the character. But in an RPG I want the camera looking at a certain direction. I tried fixing the camera direction, however, the camera was not totally vertical above the character. When the camera rotates, the view changes. That means the character would not be at the same point in the window. In a way similar to rotation and movement, the camera and the character should be separated. Considering the convenience of save them in the same prefab, I separate them in void Start() in the camera script. Set the parent of the camera to null, then calculate the relative position referred to the character. And it comes the result that the camera would not rotate when the character moves around. I really added something little to my project today. Try work harder!
+
+2017.2.21
+It’s tiring day. I only spent a little time in learn Unity. Though the project hardly had changes, I learn the importance of using Tags. Using a tag, I can distinguish the player and the enemies. Remember this function: GameObject.FindGameObjectWithTag(). 
+
+======================================================================
+以下是正片开始
+======================================================================
+2017.2.26
+之前喺学校图书馆查过，讲Unity嘅书少得可怜，而且我觉得，自己目前阶段最需要嘅係睇人哋嘅工程文件同源码。于是寻日去咗购书中心，望到有一个柜咁高嘅书架，有成半讲Unity嘅，非常兴奋。读咗几本书之后，发现人哋啲工程做得好有条理：佢哋将UI嘅交互事件用一个EmptyObject搭上一个Script嚟管理，对角色同场景嘅状态用状态机指示，然后，利用Unity灵活嘅特点，将固定嘅场景、移动嘅角色、脚本代码尽量分离开嚟，提高各个部分相对独立性。每个脚本只需要管理自己直接控制嘅部分，唔属于自己嘅部分分配到相应脚本去执行，如果函数涉及到几个脚本嘅协作，就可以发送到更高一级嘅场景管理Script中执行。
+由于之前Project嘅逻辑太混乱，唔容易改，我重新开过另外一个Project，选择性导入之前嘅Prefab，非常迅速就实现好预想中嘅功能。呢度要提醒自己一句，开发时要先做好hierarchy、为GameObject分配Tag，代码中利用Unity灵活嘅特性，比如各种FindGameObjectWithTag()、FindObjectOfType<>()等等，同时留意自己代码嘅规范，尽量少用Find提高效率。
+
+2017.2.26_2
+今日进度暴增，到目前为止，已经完成玩家移动、NPC对话、场景切换嘅功能，已经足够构建出基本嘅游戏世界。场景切换功能今日尝试咗好耐，始终係一个函数组合嘅问题，最终得出正确嘅步骤应该係：1、先新建一个场景加入BuildSetting，喺新旧场景中分别放置传送门(Trigger)同出生点(SpawnPoint)并且贴上相应嘅Tag方便查找，贴上独立ID更好。2、切换场景前，将摄像头绑定到玩家，使用DontDestroyOnLoad()使得Player喺场景切换过程唔被Destroy。然后LoadScene()打开新场景，再用函数SceneManager.MoveGameObjectToScene()将Player移动到新场景，其中Scene类型对象可以用SceneManager.GetSceneByName()获得。新场景中设置一个SceneController喺void Start()中为转移过嚟嘅Player设定position,rotation等，再解绑相机同Player，并对场景其他物体初始化。3、测试成功后，对原场景嘅void Start()修改，实现相同效果。
+因为宜家相机同Player唔捆绑，第一次进入场景时，Player利用Instantiate()创造，而Camera唔得用。代码创建Camera，要先创建一个EmptyObject(new GameObject())，然后用AddComponent<>()嘅方法往上边增加Camera, FlareLayer, GUILayer, AudioListener组成一个基础嘅Camera，当然顺手设定好name同tag係一个好习惯。当然，到依个步骤佢仲係一个GameObject，要用getComponent<Camera>()嘅方法先能够得到我哋平时用嘅Camera。
+
+2017.3.6
+目前比较重要嘅另一个问题係菜单画面，按照之前经验，按照NPC对话嘅场景仿制一个应该难度唔大。不过做起身先发觉，我想实现菜单中用卡片切换菜单内容嘅功能喺UI中冇直接提供。查阅资料之后，了解咗人哋嘅做法，係移动一整个panel到Canvas嘅视野范围之外实现卡片切换嘅（下文有修正）。我就仿照呢个思路，将菜单内容用panel整合埋一齐，做好Attribute、Item、Equipment同Collection四个Tab，设计按键时移动相应panel到视野中。场景Instpector嘅RectTransform控件中嘅Left、Right、Top、Bottom同代码中嘅position有一个关系，同Anchor有关，所以设计UI时有些少麻烦，要计算一下佢哋之间嘅相对位置，不过问题唔大。菜单嘅StatusScene设计好单独测试完毕之后，加入到游戏BuildSetting中，喺GameScene中设置好打开菜单嘅函数，再喺玩家PlayerMove脚本度检测按键，检测到ESC就打开菜单。最后测试一次通过比较简单。
+
+2017.3.8
+偶然将游戏生成exe测试发现比较严重嘅问题，唔同窗口大细下面界面布局会改变，非常肉酸。原来Canvas布局选择嘅係固定像素，改成Scale With Screen Size之后稍有好转，不过布局仍有变化。查找资料后觉得应该通过Anchor嘅功能解决，不过目前代码中移动Panel用嘅係position，佢同Anchor嘅关系暂时未清楚，下一步应该深入研究UI布局嘅技巧，完善对话UI。另一边我下载咗Microsoft Visio 2016制作游戏各个状态转换嘅流程图，以后亦可以用嚟制作剧情路线。
+
+2017.3.13
+今日开始算清楚认识四元数(Quaternion)嘅用法：x,y,z表示旋转嘅轴方向，值嘅大小係sin(θ/2)，w表示旋转角度，值大小係cos(θ/2)，其中θ为旋转角度。Quaternion可以用rotation*=new Quaternion()嘅方法表示一次旋转操作，亦可以直接赋值rotation=new Quaternion()表示一个方向，貌似默认方向係Quaternion(0,0,0,1)。如此一嚟，制作UI时就唔需要将唔用嘅元素移动到视野外，只需要改变Canvas/Panel嘅rotation到不可见嘅角度就OK，同时亦都避免咗分辨率对移动距离嘅影响，上一次遇到嘅问题迎刃而解。
+
+2017.3.15
+最近两日对剧情系统做紧完善。主要係增加咗剧情数量，同模拟任务嘅接受、完成过程中啲对话。目前嘅效果係，进入游戏时同NPC对话可以接受一个任务（例如话取得一个物件），为咗测试方便就忽略咗任务过程，再次同NPC对话可以选择是否交出任务道具完成任务。如果任务结束，以后同NPC对话就会触发另一个对话。另外，UI显示嘅问题始终未完全解决，唔同分辨率下DialougeScene嘅显示位置唔再紧贴屏幕下方，过两日再去研究下Anchor嘅玩法。
+
+2017.3.31
+前两日中午上课前的间隙打开闲置几个礼拜嘅unity，解决咗一部分Anchor问题。目前揾到嘅规律係：Anchor四个点，将佢哋拖成一条扁平嘅直线或者靠到一个点。如果拖成一条直线，例如拖动到紧贴屏幕下边框，呢个时候，Content会紧靠屏幕下方唔留空隙，同时水平方向内容会根据Anchor所成直线同外部Object关系自动放缩，竖直方向唔放缩。如果四点变成一点，Content就会跟随Anchor喺Canvas入边嘅相对位置固定（位置放缩根据Canvas嘅设置，Content唔自动放缩）。
+
+2017.5.9
+因为加入教授实验室，最近喺度睇paper好耐未搞过Unity，而且校园网翻墙都神神地，好难更新。暂时停止更新一段时间。
